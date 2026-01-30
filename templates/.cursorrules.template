@@ -48,6 +48,7 @@ Todo → In Progress → Done
 | "列出任务" / "待办" | 显示任务列表和进度 |
 | "提交代码" | Git: add → commit → push |
 | "创建分支 `<ID>`" | Git: checkout -b feature/`<ID>`-xxx |
+| "同步到 Linear" / "根据 plan 创建" | 读取 Plan MD，创建 Linear Project + Issues |
 
 > `<ID>` 格式：`<团队Key>-<数字>`，如 `AUTH-1`、`SHOP-10`
 
