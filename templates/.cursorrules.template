@@ -1,0 +1,192 @@
+# ============================================================
+# AI 驱动开发工作流规范（通用模板）
+# ============================================================
+# 
+# 📌 使用说明：
+#    1. 复制此文件到项目根目录，重命名为 .cursorrules
+#    2. 修改【项目配置】部分的占位符
+#    3. Issue 前缀由 Linear 团队 Key 自动决定
+#       例如：团队 Key 为 AUTH → Issue 为 AUTH-1, AUTH-2
+#
+# ============================================================
+
+---
+
+## 一、项目配置
+
+> ⚠️ 请将下方 `<...>` 占位符替换为实际值
+
+```yaml
+project:
+  name: "<项目名称>"              # 如：用户认证系统、电商平台
+  team: "<Linear团队名>"          # 如：AuthTeam、ShopTeam
+  repo: "<GitHub仓库地址>"        # 如：https://github.com/user/repo
+  # Issue 前缀由 Linear 团队 Key 决定，无需手动配置
+```
+
+---
+
+## 二、核心工作流
+
+### 2.1 任务生命周期
+
+```
+Todo → In Progress → Done
+            ↓
+        Canceled
+```
+
+### 2.2 触发词与动作映射
+
+| 用户说 | AI 执行 |
+|--------|---------|
+| "创建项目 XXX" | Linear: 创建 Project + 拆分 Issues |
+| "新建任务 XXX" | Linear: 创建 Issue |
+| "开始做 `<ID>`" | Linear: Issue → In Progress |
+| "完成了" / "搞定" | Linear: Issue → Done |
+| "取消 `<ID>`" | Linear: Issue → Canceled |
+| "列出任务" / "待办" | 显示任务列表和进度 |
+| "提交代码" | Git: add → commit → push |
+| "创建分支 `<ID>`" | Git: checkout -b feature/`<ID>`-xxx |
+
+> `<ID>` 格式：`<团队Key>-<数字>`，如 `AUTH-1`、`SHOP-10`
+
+---
+
+## 三、Git 规范
+
+### 3.1 分支命名
+
+```
+<type>/<issue-id>-<short-description>
+```
+
+| 类型 | 用途 | 示例 |
+|------|------|------|
+| `feature/` | 新功能 | `feature/<ID>-user-login` |
+| `fix/` | Bug修复 | `fix/<ID>-login-error` |
+| `hotfix/` | 紧急修复 | `hotfix/<ID>-security-patch` |
+| `docs/` | 文档 | `docs/<ID>-api-docs` |
+| `refactor/` | 重构 | `refactor/<ID>-auth-module` |
+
+### 3.2 Commit Message（Conventional Commits）
+
+```
+<type>(<scope>): <description> <issue-id>
+```
+
+| Type | 说明 | 示例 |
+|------|------|------|
+| `feat` | 新功能 | `feat(auth): 添加登录功能 AUTH-1` |
+| `fix` | Bug修复 | `fix(auth): 修复密码验证 AUTH-2` |
+| `docs` | 文档 | `docs: 更新API文档 AUTH-3` |
+| `style` | 格式 | `style: 代码格式化 AUTH-1` |
+| `refactor` | 重构 | `refactor(auth): 优化登录逻辑 AUTH-1` |
+| `perf` | 性能 | `perf: 优化查询性能 AUTH-4` |
+| `test` | 测试 | `test: 添加单元测试 AUTH-1` |
+| `chore` | 杂项 | `chore: 更新依赖 AUTH-5` |
+
+---
+
+## 四、AI 输出规范
+
+### 4.1 开始任务时
+
+```
+✅ 已领取任务 <ID>
+
+📌 任务：<任务标题>
+📊 优先级：<优先级图标> <优先级名称>
+📝 描述：<任务描述摘要>
+
+🌿 推荐分支：feature/<ID>-<简短描述>
+💡 是否需要我创建分支？
+```
+
+### 4.2 完成任务时
+
+```
+✅ 任务 <ID> 已完成！
+
+📝 推荐 Commit:
+<type>(<scope>): <description> <ID>
+
+🚀 是否提交并推送代码？
+```
+
+### 4.3 查看进度时
+
+```
+📊 项目进度：<项目名>
+
+状态统计：
+├── ✅ Done: <数量>
+├── 🔄 In Progress: <数量>
+└── ⬜ Todo: <数量>
+
+完成度：<进度条> <百分比>%
+
+任务列表：
+| ID | 任务 | 优先级 | 状态 |
+|----|------|--------|------|
+| <ID> | <标题> | <优先级> | <状态> |
+```
+
+---
+
+## 五、Issue 管理规范
+
+### 5.1 标题格式
+
+```
+[模块] 简短描述动作
+```
+
+示例：
+- `[用户] 实现登录功能`
+- `[订单] 修复支付失败问题`
+- `[API] 添加商品查询接口`
+
+### 5.2 优先级定义
+
+| 值 | 图标 | 名称 | 响应时间 |
+|----|------|------|----------|
+| 1 | 🔥 | Urgent | 立即处理 |
+| 2 | 🔴 | High | 当天完成 |
+| 3 | 🟡 | Medium | 本周完成 |
+| 4 | 🟢 | Low | 有空再做 |
+
+### 5.3 常用标签
+
+```yaml
+领域: Frontend | Backend | Database | DevOps | Design
+类型: Feature | Bug | Enhancement | Documentation | Testing
+```
+
+---
+
+## 六、自动化检查
+
+AI 执行操作前应检查：
+
+- [ ] Linear MCP 连接状态
+- [ ] 当前进行中的任务
+- [ ] Git 仓库状态
+- [ ] 未提交的代码更改
+- [ ] 分支是否正确
+
+---
+
+## 七、错误处理
+
+### Linear 连接失败
+```
+❌ Linear 连接失败
+💡 解决：检查网络 → 重新授权 MCP → 检查端口占用
+```
+
+### Git 推送失败
+```
+❌ Git 推送失败
+💡 解决：检查远程配置 → 检查权限 → 解决冲突
+```
