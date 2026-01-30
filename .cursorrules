@@ -34,7 +34,8 @@ project:
 | "创建项目 XXX" | 创建 Linear Project + 拆分 Issues |
 | "新建任务 XXX" | 创建 Linear Issue |
 | "开始做 `<ID>`" | Issue → In Progress，告知分支名 |
-| "完成了" / "搞定" | Issue → Done，生成 commit message |
+| "开始做 XXX" / "做 XXX" | 查询 Linear 匹配任务 → In Progress |
+| "完成了" / "搞定" | 当前任务 Issue → Done，生成 commit message |
 | "取消 `<ID>`" | Issue → Canceled |
 | "列出任务" / "待办" / "进度" | 显示任务列表和完成度 |
 | "提交代码" / "推送" | git add + commit + push |
@@ -42,6 +43,7 @@ project:
 | "同步到 Linear" / "根据 plan 创建任务" | 读取 Plan MD 文件，创建 Linear Project + Issues |
 
 > `<ID>` = Issue 标识符，如 `VB-10`、`AUTH-5`
+> 当用户用任务描述而非 ID 时，AI 需先查询 Linear 找到匹配的 Issue
 
 ---
 
@@ -70,14 +72,46 @@ project:
 ## 四、AI 行为规范
 
 ### 开始任务时
+
+**情况1：用户提供 Issue ID（如 "开始做 AUTH-1"）**
 1. 调用 `update_issue` → In Progress
 2. 输出任务详情 + 推荐分支名
 3. 询问是否创建分支
 
+**情况2：用户用描述开始（如 "开始做用户登录" / "做 Phase 1"）**
+1. 调用 `list_issues` 查询当前项目的任务
+2. 匹配任务标题/描述，找到对应 Issue
+3. 如有多个匹配，列出选项让用户确认
+4. 确认后调用 `update_issue` → In Progress
+5. **记录当前任务 ID**（用于后续"完成了"更新）
+6. 输出任务详情 + 推荐分支名
+
+**示例：**
+```
+用户：做用户登录
+AI：找到匹配任务 AUTH-1「[用户] 实现登录功能」，已标记为进行中。
+    推荐分支：feature/AUTH-1-user-login
+    是否创建分支？
+```
+
 ### 完成任务时
-1. 调用 `update_issue` → Done
-2. 生成规范 commit message
-3. 询问是否提交推送
+1. 检查是否有**当前正在进行的任务**
+   - 如有，直接更新该任务
+   - 如无，询问用户要完成哪个任务
+2. 调用 `update_issue` → Done
+3. 生成规范 commit message（包含 Issue ID）
+4. 询问是否提交推送
+5. 清除当前任务记录
+
+**示例：**
+```
+用户：完成了
+AI：（检测到当前任务 AUTH-1）
+    ✅ AUTH-1「用户登录」已标记完成
+    📝 推荐 commit message:
+       feat(auth): 实现用户登录功能 AUTH-1
+    是否提交推送？
+```
 
 ### 查看进度时
 1. 调用 `list_issues` 获取任务
